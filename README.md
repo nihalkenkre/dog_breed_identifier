@@ -16,13 +16,6 @@ Finally to create a algorithm that will take an input image and identify the bre
 We use `Categorical Crossentropy` as the error / loss function since we are doing a multi class identification, where in the input can be one of many possible outputs. We use `accuracy` to evaluate the fit / test results.
 
 
-Example 1
-![identify_1](imgs/identify_1.png)
-
-Example 2
-![identify_2](imgs/identify_2.png)
-
-
 ## Analysis
 We go through the data and check which dog breeds are most represented in the training, validation and test data. A high corelation between the three sets would be expected. 
 
@@ -54,6 +47,15 @@ The app looks for a human in the image, if a human is detected, the app looks fo
 The app uses openCV's human detection workflow to detect the presence of humans in the provided image. 
 The app uses a custom CNN with learning transferred from the Resnet 50 model to identify the dog breed. The last two layers of the Resnet50 model are dropped off and a custom model is added to identify the breeds.
 
+
+## Examples
+Example 1
+![identify_1](imgs/identify_1.png)
+
+Example 2
+![identify_2](imgs/identify_2.png)
+
+
 ## Commands
 
 Run the following from the project folder
@@ -71,4 +73,6 @@ Next we created a webapp which took an input image and identified the breed of t
 - Have more layers with dropouts after the bottleneck, to prevent overfitting.
 - Data augmentation can be used to further prevent overfitting.
 - MaxPooling2D could be used with more convolution layers instead of GlobalAverage2D to highlight the minute differences between very similar looking breeds.
-
+- More images of similar breeds could be provided for training so the model learns more about the differences.
+- Images provided either at training/testing or as input to webapp should be of aspect ratio 1 and as close to `224x224` to minimize loss of data during rescaling.
+- For landscaped or portrait images, there could be an additional step where the area of the image where the dog is located is identified and then those pixels are passed to the CNN for identification. This will give a higher signal to noise ratio.
