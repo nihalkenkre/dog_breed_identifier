@@ -4,3 +4,6 @@
 
 # Backup files
 *~*
+
+# Static file. This is the "uploads" folder for this project
+*static*

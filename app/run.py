@@ -27,7 +27,7 @@ model_resnet = create_model()
 
 # load the dog names/labels.
 breed_names = pickle.load(open('./app/data/breed_names.pkl', 'rb'))
-identified_dog_breed = None
+#identified_dog_breed = None
 
 face_cascade = cv2.CascadeClassifier(
     './app/haarcascades/haarcascade_frontalface_alt.xml')
@@ -164,7 +164,7 @@ deamon = Deamon()
 
 @app.route('/', methods=['GET'])
 def index_html():
-    return render_template('index.html', breed=identified_dog_breed)
+    return render_template('index.html')
 
 
 @app.route('/favicon.ico')
@@ -189,7 +189,7 @@ def identified_html():
         # Set the variable in the thread.
         deamon.img_path = upload_path
 
-        return render_template('identified.html', img_src='thumb_' + f.filename, breed=identified_dog_breed)
+        return render_template('identified.html', img_src='thumb_' + f.filename)
 
 
 # This is a signal from the front end that there is a
