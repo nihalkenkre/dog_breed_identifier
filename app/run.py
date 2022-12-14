@@ -82,7 +82,7 @@ def get_dog_breed(img_path):
 
     # Use the dog names list to return the label of the prediction
     prediction = breed_names[np.argmax(model_resnet.predict(
-        bottleneck_values))].split('/')[2].split('.')[1].replace('-', ' ').replace('_', ' ')
+        bottleneck_values))]
 
     return prediction
 
@@ -101,17 +101,22 @@ def identify(img_path):
         print('looking for dog breed which resembles the human...')
         found_dog = dog_detector(img_path)
 
+        # if a resembling dog breed is found return the breed
         if found_dog:
             breed = get_dog_breed(img_path)
             print('found ' + breed + '\n')
+
             return breed
         else:
             print('not found.\n')
     else:
         print('not found.\n')
 
+    # if a dog breed resembling a human is not found, look for a dog 
+    # and try to identify the breed
     if not found_dog:
         # look for dog
+
         print('looking for dog...')
         found_dog = dog_detector(img_path)
 
@@ -133,16 +138,24 @@ def identify(img_path):
 
     return None
 
-
+# This class provides a thread object that can be setup to run whenever
+# a new image is to be identified.
+#
+# This runs the identification in the 'background', and notifies the front end
+#   with the name of the breed when identification is complete
 class Deamon(Thread):
     def __init__(self):
         Thread.__init__(self)
 
+        # path of the image
         self.img_path = None
 
     def run(self):
         if self.img_path is not None:
             identified_dog_breed = identify(self.img_path)
+
+            # emits a signal with the name of breed for the receiver
+            # the receiver is the socket on identified.html page
             emit('identify_done', identified_dog_breed if identified_dog_breed is not None else 'Could not identify dog breed')
 
 
@@ -167,15 +180,20 @@ def identified_html():
         upload_path = os.path.join('./app/static/', f.filename)
         f.save(upload_path)
 
+        # Create a 'thumbnail' image to be displayed on the front end
+        # with the appropriate size
         with Image.open(upload_path) as img:
             img.thumbnail((400, 400))
             img.save(os.path.join('./app/static/', 'thumb_' + f.filename))
 
+        # Set the variable in the thread.
         deamon.img_path = upload_path
 
         return render_template('identified.html', img_src='thumb_' + f.filename, breed=identified_dog_breed)
 
 
+# This is a signal from the front end that there is a
+# new img waiting to be identified
 @socketio.on('connect', namespace='/identify_breed')
 def handle_connect(data):
     deamon.run()
@@ -184,5 +202,6 @@ def handle_connect(data):
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8000, debug=True)
 
+    # if the deamon thread is alive, shut it down gracefully
     if deamon.is_alive():
         deamon.join()
